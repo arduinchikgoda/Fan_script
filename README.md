@@ -2,6 +2,9 @@
 ## A script for fan management for Dell Poweredge servers. The script should work from the 11th generation of servers to the 13th (Tested on Dell Poweredge R620, BIOS version 2.9.0. IDRAC version 7).
 ![](/example.png)
 
+
+**WARNING: Use at your own risk. This software allows you to manually control the server fan speed.**
+
 **ipmitool is _required_ for the script to work.**
 
 Debian / Ubuntu / Mint / Kali:
