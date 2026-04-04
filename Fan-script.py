@@ -34,7 +34,7 @@ def auth_file():
         return
 
 def clear_screen():
-    os.system('clear')
+    subprocess.run(["clear"])
 
 def check_ipmitool():
     try:
@@ -47,11 +47,11 @@ def check_ipmitool():
             return True
         else:
             print("ipmitool was not found (execution error). Try reinstalling/installing the ipmitool package for the script to work.")
-            os.system(exit())
+            exit()
             return False
     except FileNotFoundError:
         print("ipmitool is not installed or not found in the PATH. Try reinstalling/installing the ipmitool package for the script to work.")
-        os.system(exit())
+        exit()
         return False
 
 def fan_speed():
@@ -83,12 +83,15 @@ def fan_speed():
         number = int(input("Enter a number from 0-100 to set the speed: "))
         assert 0 <= number <= 100, f"The number {number} is out of range!"
         hexn = hex(number)
-        print(f"Your settings:\n-------------------------\nIP: {ip}\nUsername: {user}\nPassword: {passwd}\nFan-speed: {number} (hex:{hexn})\n-------------------------\n")
+        print(f"Your settings:\n-------------------------\nIP: {ip}\nUsername: {user}\nPassword: {passwd}\nFan-speed: {number} (hex:{hexn})\n-------------------------")
         sure = input("Are you sure. (y/n)").strip()
         if sure in {'y', 'Y'} or sure.lower() == 'y' or sure.upper() == 'Y':
-            print(os.system(f"ipmitool -I lanplus -H {ip} -U {user} -P {passwd} raw 0x30 0x30 0x01 0x00"))
-            print(os.system(f"ipmitool -I lanplus -H {ip} -U {user} -P {passwd} raw 0x30 0x30 0x02 0xff {hexn}"))
-            print("Done\n")
+            try:
+                subprocess.run(["ipmitool", "-I", "lanplus", "-H", ip, "-U", user, "-P", passwd, "raw", "0x30", "0x30", "0x01", "0x00"], capture_output=True, text=True, check=True)
+                subprocess.run(["ipmitool", "-I", "lanplus", "-H", ip, "-U", user, "-P", passwd, "raw", "0x30", "0x30", "0x02", "0xff", hexn], capture_output=True, text=True)
+                print("Done. Returning to menu...")
+            except subprocess.CalledProcessError:
+                print(f"Failed with return code {e}")
         else:
             print("Cancelled\n")
     except Exception as e:
@@ -127,11 +130,17 @@ def fan_control():
     sure = input("Are you sure. (y/n)").strip()
     if sure in {'y', 'Y'} or sure.lower() == 'y' or sure.upper() == 'Y':
         if number == 0:
-            print(os.system(f"ipmitool -I lanplus -H {ip} -U {user} -P {passwd} raw 0x30 0x30 0x01 0x00"))
-            print("Done\n ")
+            try:
+                subprocess.run(["ipmitool", "-I", "lanplus", "-H", ip, "-U", user, "-P", passwd, "raw", "0x30", "0x30", "0x01", "0x00"], capture_output=True, text=True, check=True)
+                print("Done\n ")
+            except subprocess.CalledProcessError:
+                print(f"Failed with return code {e}")
         elif number == 1:
-            print(os.system(f"ipmitool -I lanplus -H {ip} -U {user} -P {passwd} raw 0x30 0x30 0x01 0x01"))
-            print("Done.\n ")
+            try:
+                subprocess.run(["ipmitool", "-I", "lanplus", "-H", ip, "-U", user, "-P", passwd, "raw", "0x30", "0x30", "0x01", "0x01"], capture_output=True, text=True, check=True)
+                print("Done\n ")
+            except subprocess.CalledProcessError:
+                print(f"Failed with return code {e}")
     else:
         print("Exit to menu\n ")
 
