@@ -48,11 +48,9 @@ def check_ipmitool():
         else:
             print("ipmitool was not found (execution error). Try reinstalling/installing the ipmitool package for the script to work.")
             exit()
-            return False
     except FileNotFoundError:
         print("ipmitool is not installed or not found in the PATH. Try reinstalling/installing the ipmitool package for the script to work.")
         exit()
-        return False
 
 def fan_speed():
     default_config = "data.json"
@@ -85,12 +83,12 @@ def fan_speed():
         hexn = hex(number)
         print(f"Your settings:\n-------------------------\nIP: {ip}\nUsername: {user}\nPassword: {passwd}\nFan-speed: {number} (hex:{hexn})\n-------------------------")
         sure = input("Are you sure. (y/n)").strip()
-        if sure in {'y', 'Y'} or sure.lower() == 'y' or sure.upper() == 'Y':
+        if sure in {'y', 'Y'}:
             try:
                 subprocess.run(["ipmitool", "-I", "lanplus", "-H", ip, "-U", user, "-P", passwd, "raw", "0x30", "0x30", "0x01", "0x00"], capture_output=True, text=True, check=True)
                 subprocess.run(["ipmitool", "-I", "lanplus", "-H", ip, "-U", user, "-P", passwd, "raw", "0x30", "0x30", "0x02", "0xff", hexn], capture_output=True, text=True)
                 print("Done. Returning to menu...")
-            except subprocess.CalledProcessError:
+            except Exception as e:
                 print(f"Failed with return code {e}")
         else:
             print("Cancelled\n")
@@ -128,18 +126,18 @@ def fan_control():
         passwd = passwd or getpass.getpass("Password: ")
     print(f"Your settings:\n-------------------------\nIP: {ip}\nUsername: {user}\nPassword: {passwd}\n-------------------------\n")
     sure = input("Are you sure. (y/n)").strip()
-    if sure in {'y', 'Y'} or sure.lower() == 'y' or sure.upper() == 'Y':
+    if sure in {'y', 'Y'}:
         if number == 0:
             try:
                 subprocess.run(["ipmitool", "-I", "lanplus", "-H", ip, "-U", user, "-P", passwd, "raw", "0x30", "0x30", "0x01", "0x00"], capture_output=True, text=True, check=True)
                 print("Done\n ")
-            except subprocess.CalledProcessError:
+            except Exception as e:
                 print(f"Failed with return code {e}")
         elif number == 1:
             try:
                 subprocess.run(["ipmitool", "-I", "lanplus", "-H", ip, "-U", user, "-P", passwd, "raw", "0x30", "0x30", "0x01", "0x01"], capture_output=True, text=True, check=True)
                 print("Done\n ")
-            except subprocess.CalledProcessError:
+            except Exception as e:
                 print(f"Failed with return code {e}")
     else:
         print("Exit to menu\n ")
